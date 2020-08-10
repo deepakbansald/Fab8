@@ -1,0 +1,52 @@
+---
+
+# ==========================================================================
+# Ansible playbook Import config policy
+# Created on 3rd Aug , 2020
+# Author: Deepak Bansal
+# ==========================================================================
+
+  - name: "Creating a Import policy "
+    hosts: apic1
+    connection: local
+    gather_facts: no
+    vars_prompt:
+            - name: "file"
+              prompt: "Enter the file name of the backup file"
+              private: no
+    tasks:
+      -  name: "Creating a remote path from where you have the back-up config"
+         aci_rest:
+          hostname: "{{hostname}}"
+          username: "{{username}}"
+          password: "{{password}}"
+          validate_certs: false
+          method: get
+          path: /api/mo/uni/fabric/.json
+      -  name: "Creating a Import policy"
+         aci_rest:
+           hostname: "{{hostname}}"
+           username: "{{username}}"
+           password: "{{password}}"
+           validate_certs: false
+           method: post
+           path: /api/mo/uni/fabric/.json
+           content:
+             {
+                "configImportP":{
+                   "attributes":{
+                         "name":"deepakba_test",
+                         "fileName":"{{file}}",
+                         "importType":"merge",
+                         "importMode": "atomic",
+                         "adminSt":"triggered"
+                             },
+                             "children":[{
+                             "configRsRemotePath":{
+                               "attributes":{
+                                 "tnFileRemotePathName":"bgl-calo-tftp"
+                                            },
+                                          }
+                                        }]
+                                      }
+                                    }
